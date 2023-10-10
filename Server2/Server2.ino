@@ -72,7 +72,7 @@ void setup() {
     Serial.print(".");
     delay(500);
   }
-  server.begin();                         // starts the server
+  //server.begin();                         // starts the server
 /*Serial.println("Connected to wifi");
   Serial.print("Status: "); Serial.println(WiFi.status());  // some parameters from the network
   Serial.print("IP: ");     Serial.println(WiFi.localIP());
@@ -82,6 +82,9 @@ void setup() {
   Serial.print("Signal: "); Serial.println(WiFi.RSSI());
   Serial.print("Networks: "); Serial.println(WiFi.scanNetworks());*/
   pinMode(ledPin, OUTPUT);
+  webSocket.begin(); //websocket Begin
+  webSocket.onEvent(webSocketEvent); //set Event for websocket
+  Serial.println("Websocket is started");
 }
 
 void loop () {
