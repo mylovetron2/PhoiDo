@@ -13,12 +13,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Phoi Do ',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Phoi do smart'),
     );
   }
 }
@@ -51,10 +51,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _incrementCounter() {
-    sendcmd("poweroff");
+    //sendcmd("poweroff");
+
     setState(() {
       _counter++;
     });
+  }
+
+  void _run() {
+    sendcmd("run");
+  }
+
+  void _stop() {
+    sendcmd("stop");
   }
 
   channelconnect() {
@@ -93,7 +102,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> sendcmd(String cmd) async {
     if (connected == true) {
-      if (ledstatus == false && cmd != "poweron" && cmd != "poweroff") {
+      if (ledstatus == false &&
+          cmd != "poweron" &&
+          cmd != "poweroff" &&
+          cmd != "stop" &&
+          cmd != "run") {
         print("Send the valid command");
       } else {
         channel.sink.add(cmd); //sending Command to NodeMCU
@@ -121,6 +134,12 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            Row(
+              children: [
+                ElevatedButton(onPressed: _run, child: Text("Run")),
+                ElevatedButton(onPressed: _stop, child: Text("Stop")),
+              ],
+            )
           ],
         ),
       ),

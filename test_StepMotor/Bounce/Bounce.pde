@@ -19,18 +19,21 @@ void setup()
 {  
   // Change these to suit your stepper if you want
   pinMode(4,OUTPUT);
+  pinMode(dirPin,OUTPUT);
+  digitalWrite(dirPin,HIGH);
   digitalWrite(4,LOW);
   stepper.setMaxSpeed(30000);
   stepper.setAcceleration(500);
   stepper.setSpeed(20000);
-  stepper.moveTo(500000);
+  stepper.moveTo(50000);
 }
 
 void loop()
 {
     // If at the end of travel go to the other end
+    
     if (stepper.distanceToGo() == 0)
-      stepper.moveTo(-stepper.currentPosition());
+       stepper.moveTo(-stepper.currentPosition());
 
     stepper.run();
 }

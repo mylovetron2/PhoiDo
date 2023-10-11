@@ -7,8 +7,20 @@
 #include <SPI.h>
 #include <ESP8266WiFi.h>
 #include <WebSocketsServer.h> //import for websocket
+#include <AccelStepper.h>
 
-byte ledPin = 2;
+const int dirPin = 2;
+const int stepPin = 0;
+const int enable=4;
+const int led_forward=5;
+const int led_back=14;
+
+#define motorInterfaceType 1
+
+AccelStepper stepper(motorInterfaceType, stepPin, dirPin);
+int state_stepper=1; //0 stop , 1 fordward , 2 back
+
+//byte ledPin = 2;
 char ssid[] = "Family F2";               // SSID of your home WiFi
 char pass[] = "23456781";               // password of your home WiFi
 WiFiServer server(80);                    
@@ -41,16 +53,33 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
                 cmd = cmd + (char) payload[i]; 
             } //merging payload to single string
             Serial.println(cmd);
-/*
+
             if(cmd == "poweron"){ //when command from app is "poweron"
-                digitalWrite(ledpin, HIGH);   //make ledpin output to HIGH  
+                //digitalWrite(ledpin, HIGH);   //make ledpin output to HIGH  
             }else if(cmd == "poweroff"){
-                digitalWrite(ledpin, LOW);    //make ledpin output to LOW on 'pweroff' command.
+                //digitalWrite(ledpin, LOW);    //make ledpin output to LOW on 'pweroff' command.
             }
-*/
-             //webSocket.sendTXT(num, cmd+":success");
-             //send response to mobile, if command is "poweron" then response will be "poweron:success"
-             //this response can be used to track down the success of command in mobile app.
+            else if(cmd=="forward")
+            {
+
+            }
+            else if(cmd=="stop")
+            {
+                state_stepper=0;
+                stepper.stop();
+                Serial.print("da nhan lenh: ");Serial.print(cmd);
+            }
+            else if(cmd=="run")
+            {
+                state_stepper=1;
+                stepper.run();
+                Serial.print("da nhan lenh: ");Serial.print(cmd);
+            }
+
+            //webSocket.sendTXT(num, cmd+":success");
+            //send response to mobile, if command is "poweron" then response will be "poweron:success"
+            //this response can be used to track down the success of command in mobile app.
+            
             break;
         case WStype_FRAGMENT_TEXT_START:
             break;
@@ -66,31 +95,57 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 
 void setup() {
   Serial.begin(115200);                   // only for debug
+  
+  pinMode(enable,OUTPUT);
+  pinMode(led_forward,OUTPUT);
+  pinMode(led_back,OUTPUT);
+
+  pinMode(dirPin,OUTPUT);
+  digitalWrite(dirPin,HIGH);
+  digitalWrite(enable,LOW);
+  stepper.setMaxSpeed(30000);
+  stepper.setAcceleration(500);
+  stepper.setSpeed(20000);
+  stepper.moveTo(500000);
+
   WiFi.config(ip, gateway, subnet);       // forces to use the fix IP
   WiFi.begin(ssid, pass);                 // connects to the WiFi router
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
-  //server.begin();                         // starts the server
-/*Serial.println("Connected to wifi");
-  Serial.print("Status: "); Serial.println(WiFi.status());  // some parameters from the network
-  Serial.print("IP: ");     Serial.println(WiFi.localIP());
-  Serial.print("Subnet: "); Serial.println(WiFi.subnetMask());
-  Serial.print("Gateway: "); Serial.println(WiFi.gatewayIP());
-  Serial.print("SSID: "); Serial.println(WiFi.SSID());
-  Serial.print("Signal: "); Serial.println(WiFi.RSSI());
-  Serial.print("Networks: "); Serial.println(WiFi.scanNetworks());*/
-  pinMode(ledPin, OUTPUT);
+            //server.begin();                         // starts the server
+           /*Serial.println("Connected to wifi");
+            Serial.print("Status: "); Serial.println(WiFi.status());  // some parameters from the network
+            Serial.print("IP: ");     Serial.println(WiFi.localIP());
+            Serial.print("Subnet: "); Serial.println(WiFi.subnetMask());
+            Serial.print("Gateway: "); Serial.println(WiFi.gatewayIP());
+            Serial.print("SSID: "); Serial.println(WiFi.SSID());
+            Serial.print("Signal: "); Serial.println(WiFi.RSSI());
+            Serial.print("Networks: "); Serial.println(WiFi.scanNetworks());*/
+            //pinMode(ledPin, OUTPUT);
   webSocket.begin(); //websocket Begin
   webSocket.onEvent(webSocketEvent); //set Event for websocket
   Serial.println("Websocket is started");
 }
 
 void loop () {
-  
+  if(state_stepper!=0){
+      digitalWrite(led_forward,HIGH);
+      digitalWrite(led_back,HIGH);
+  }
+  else{
+      digitalWrite(led_forward,LOW);
+      digitalWrite(led_back,LOW);
+  }
+
   webSocket.loop(); //keep this line on loop method
-  
+   // If at the end of travel go to the other end
+    if (stepper.distanceToGo() == 0)
+      stepper.moveTo(-stepper.currentPosition());
+  //if(state_stepper!=0)
+    //stepper.run();
+
   /*
   WiFiClient client = server.available();
   if (client) {
@@ -109,4 +164,5 @@ void loop () {
   // else
   //   Serial.print("nothing");
   */
+
 }
