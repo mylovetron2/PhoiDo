@@ -15,9 +15,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Phoi Do ',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 20, 152, 228)),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: 'Phoi do smart'),
     );
   }
@@ -62,6 +64,14 @@ class _MyHomePageState extends State<MyHomePage> {
     sendcmd("run");
   }
 
+  void _backward() {
+    sendcmd("backward");
+  }
+
+  void _forward() {
+    sendcmd("forward");
+  }
+
   void _stop() {
     sendcmd("stop");
   }
@@ -84,13 +94,14 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           });
         },
+        /*
         onDone: () {
           //if WebSocket is disconnected
           print("Web socket is closed");
           setState(() {
             connected = false;
           });
-        },
+        },*/
         onError: (error) {
           print(error.toString());
         },
@@ -106,7 +117,8 @@ class _MyHomePageState extends State<MyHomePage> {
           cmd != "poweron" &&
           cmd != "poweroff" &&
           cmd != "stop" &&
-          cmd != "run") {
+          cmd != "backward" &&
+          cmd != "forward") {
         print("Send the valid command");
       } else {
         channel.sink.add(cmd); //sending Command to NodeMCU
@@ -123,9 +135,11 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          //mainAxisAlignment: MainAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             const Text(
               'You have pushed the button this many times:',
@@ -134,10 +148,26 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
+            SizedBox(
+              height: 100,
+            ),
             Row(
               children: [
-                ElevatedButton(onPressed: _run, child: Text("Run")),
-                ElevatedButton(onPressed: _stop, child: Text("Stop")),
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: _backward, child: Text("Backward"))),
+                const SizedBox(
+                  width: 12,
+                ),
+                Expanded(
+                    child:
+                        ElevatedButton(onPressed: _stop, child: Text("Stop"))),
+                const SizedBox(
+                  width: 12,
+                ),
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: _forward, child: Text("Forward"))),
               ],
             )
           ],

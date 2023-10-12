@@ -14,6 +14,8 @@ const int stepPin = 0;
 const int enable=4;
 const int led_forward=5;
 const int led_back=14;
+int spd= 12000;
+int sign=1;
 
 #define motorInterfaceType 1
 
@@ -49,6 +51,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             break;
         case WStype_TEXT:
             cmd = "";
+
             for(int i = 0; i < length; i++) {
                 cmd = cmd + (char) payload[i]; 
             } //merging payload to single string
@@ -61,20 +64,21 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
             }
             else if(cmd=="forward")
             {
-
+                sign=1;
+            }
+            else if(cmd=="backward")
+            {
+              sign=-1;
             }
             else if(cmd=="stop")
             {
-                state_stepper=0;
-                stepper.stop();
-                Serial.print("da nhan lenh: ");Serial.print(cmd);
+                sign=0;
             }
             else if(cmd=="run")
             {
-                state_stepper=1;
-                stepper.run();
-                Serial.print("da nhan lenh: ");Serial.print(cmd);
+                
             }
+            stepper.setSpeed(sign * spd);
 
             //webSocket.sendTXT(num, cmd+":success");
             //send response to mobile, if command is "poweron" then response will be "poweron:success"
@@ -103,10 +107,11 @@ void setup() {
   pinMode(dirPin,OUTPUT);
   digitalWrite(dirPin,HIGH);
   digitalWrite(enable,LOW);
-  stepper.setMaxSpeed(30000);
-  stepper.setAcceleration(500);
-  stepper.setSpeed(20000);
-  stepper.moveTo(500000);
+  
+  stepper.setMaxSpeed(20000);
+  //stepper.setAcceleration(500);
+  stepper.setSpeed(12000);
+  //stepper.moveTo(500000);
 
   WiFi.config(ip, gateway, subnet);       // forces to use the fix IP
   WiFi.begin(ssid, pass);                 // connects to the WiFi router
@@ -130,21 +135,30 @@ void setup() {
 }
 
 void loop () {
-  if(state_stepper!=0){
-      digitalWrite(led_forward,HIGH);
-      digitalWrite(led_back,HIGH);
-  }
-  else{
-      digitalWrite(led_forward,LOW);
-      digitalWrite(led_back,LOW);
-  }
 
   webSocket.loop(); //keep this line on loop method
-   // If at the end of travel go to the other end
-    if (stepper.distanceToGo() == 0)
-      stepper.moveTo(-stepper.currentPosition());
-  //if(state_stepper!=0)
-    //stepper.run();
+  //code Motor
+  if(sign==-1){
+    digitalWrite(led_back,HIGH);
+    digitalWrite(led_forward,LOW);
+  }
+  else if(sign==1){
+    digitalWrite(led_back,LOW);
+    digitalWrite(led_forward,HIGH);
+  }
+  else if(sign==0)
+  {
+    digitalWrite(led_forward,LOW);
+    digitalWrite(led_back,LOW);
+    digitalWrite(enable,HIGH);
+  }
+
+  if(sign!=0)
+    digitalWrite(enable,LOW);
+
+  stepper.runSpeed();
+
+
 
   /*
   WiFiClient client = server.available();

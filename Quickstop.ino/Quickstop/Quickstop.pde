@@ -21,25 +21,44 @@ const int led_back=14;
 // Define a stepper and the pins it will use
 AccelStepper stepper(motorInterfaceType, stepPin, dirPin); // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
 
-int spd = 1000;    // The current speed in steps/second
+int spd = 12000;    // The current speed in steps/second
 int sign = 1;      // Either 1, 0 or -1
 
 int buttonState = 0;
 
+int distance=200;
 
 void setup()
 {
   Serial.begin(9600);
-  stepper.setMaxSpeed(30000);
-  stepper.setSpeed(10000);
-  stepper.setAcceleration(500);
-  stepper.moveTo(50000);
+  pinMode(enable,OUTPUT);
+  pinMode(led_forward,OUTPUT);
+  pinMode(led_back,OUTPUT);
+
+  stepper.setMaxSpeed(20000);
+  stepper.setSpeed(12000);
+  //stepper.setAcceleration(10000);
+  //stepper.moveTo(50000);
   
 }
 
 void loop()
 {
-  
+  if(sign==-1){
+    digitalWrite(led_back,HIGH);
+    digitalWrite(led_forward,LOW);
+  }
+  else if(sign==1){
+    digitalWrite(led_back,LOW);
+    digitalWrite(led_forward,HIGH);
+  }
+  else if(sign==0)
+  {
+    digitalWrite(led_forward,LOW);
+    digitalWrite(led_back,LOW);
+  }
+      
+  //stepper.move(stepper.currentPosition()+distance);
   char c;
   if (Serial.available()) {
     c = Serial.read();
@@ -63,9 +82,14 @@ void loop()
     }
     if (c == '4') {
       //not working, does anyone know how to do this?
-      stepper.moveTo(500);
+      //stepper.moveTo(500);
     }
+    if(sign==0)
+        digitalWrite(enable,HIGH);
+    else
+        digitalWrite(enable,LOW);
+
     stepper.setSpeed(sign * spd);
   }
-  stepper.run(); //You need to call stepper.run() instead of runSpeed, for moveTo to work. – Gerben
+  stepper.runSpeed(); //You need to call stepper.run() instead of runSpeed, for moveTo to work. – Gerben
 }
