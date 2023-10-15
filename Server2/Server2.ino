@@ -27,8 +27,8 @@ char ssid[] = "Family F2";               // SSID of your home WiFi
 char pass[] = "23456781";               // password of your home WiFi
 WiFiServer server(80);                    
 
-IPAddress ip(192, 168, 100, 80);            // IP address of the server
-IPAddress gateway(192,168,100,58);           // gateway of your network
+IPAddress ip(192, 168, 4, 80);            // IP address of the server
+IPAddress gateway(192,168,4,1);           // gateway of your network
 IPAddress subnet(255,255,255,0);          // subnet mask of your network
 
 

@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //function to connect
     try {
       channel = IOWebSocketChannel.connect(
-          "ws://192.168.100.80:80"); //channel IP : Port
+          "ws://192.168.4.80:80"); //channel IP : Port
       channel.stream.listen(
         (message) {
           print(message);
@@ -94,14 +94,13 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           });
         },
-        /*
         onDone: () {
           //if WebSocket is disconnected
           print("Web socket is closed");
           setState(() {
             connected = false;
           });
-        },*/
+        },
         onError: (error) {
           print(error.toString());
         },
@@ -148,28 +147,27 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            SizedBox(
+            const SizedBox(
               height: 100,
             ),
-            Row(
-              children: [
-                Expanded(
-                    child: ElevatedButton(
-                        onPressed: _backward, child: Text("Backward"))),
-                const SizedBox(
-                  width: 12,
-                ),
-                Expanded(
-                    child:
-                        ElevatedButton(onPressed: _stop, child: Text("Stop"))),
-                const SizedBox(
-                  width: 12,
-                ),
-                Expanded(
-                    child: ElevatedButton(
-                        onPressed: _forward, child: Text("Forward"))),
-              ],
-            )
+            ElevatedButton(
+              onPressed: _backward,
+              style: ElevatedButton.styleFrom(
+                  fixedSize: Size(120, 34), // specify width, height
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                    20,
+                  ))),
+              child: Text("Backward"),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            ElevatedButton(onPressed: _stop, child: Text("Stop")),
+            const SizedBox(
+              height: 30,
+            ),
+            ElevatedButton(onPressed: _forward, child: Text("Forward"))
           ],
         ),
       ),
